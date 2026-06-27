@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>QRank — Community Q&A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --indigo:#4F46E5;--indigo-d:#3730A3;--indigo-h:#4338CA;--indigo-l:#EEF2FF;--indigo-ll:#F5F3FF;
+  --bg:#F8F9FC;--white:#fff;--border:#E5E7EB;--border-s:#D1D5DB;
+  --text:#111827;--text2:#374151;--muted:#6B7280;--light:#9CA3AF;--xlight:#D1D5DB;
+  --green:#059669;--green-l:#ECFDF5;--red:#DC2626;--red-l:#FEF2F2;
+  --amber:#D97706;--amber-l:#FFFBEB;--blue:#2563EB;--blue-l:#EFF6FF;
+  --gold:#F59E0B;--silver:#9CA3AF;--bronze:#B45309;
+  --admin:#7C3AED;--admin-l:#F5F3FF;
+  --radius:10px;--sidebar:248px;--shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,.08),0 2px 4px -1px rgba(0,0,0,.05);
+  --shadow-lg:0 10px 25px -5px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05);
+}
+[data-theme="dark"]{
+  --bg:#0F1117;--white:#1A1D27;--border:#2D3148;--border-s:#3D4168;
+  --text:#F1F5F9;--text2:#CBD5E1;--muted:#94A3B8;--light:#64748B;--xlight:#334155;
+  --indigo-l:#1E1B4B;--indigo-ll:#1a1940;
+  --green-l:#022c22;--red-l:#1f0707;--amber-l:#1c1200;--blue-l:#0c1a3d;
+  --admin-l:#1e1040;
+  --shadow:0 1px 3px rgba(0,0,0,.3);--shadow-md:0 4px 6px -1px rgba(0,0,0,.3);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s,color .2s}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+input,textarea,select{font-family:inherit;color:var(--text)}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--xlight);border-radius:3px}
+#auth{display:flex;flex-direction:column;min-height:100vh;background:var(--bg)}
+.auth-nav{display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;background:var(--white);border-bottom:1px solid var(--border);box-shadow:var(--shadow)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;color:var(--indigo);letter-spacing:-.3px}
+.brand-icon{width:34px;height:34px;background:linear-gradient(135deg,#6366F1,#4F46E5);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;box-shadow:0 2px 8px rgba(79,70,229,.35)}
+.auth-hero{background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);padding:4rem 2rem;text-align:center;color:#fff}
+.auth-hero h1{font-size:clamp(28px,5vw,48px);font-weight:800;letter-spacing:-.5px;margin-bottom:12px;line-height:1.15}
+.auth-hero p{font-size:17px;opacity:.85;max-width:520px;margin:0 auto 2rem;line-height:1.6}
+.hero-stats{display:flex;gap:3rem;justify-content:center;flex-wrap:wrap}
+.hero-stat .num{font-size:28px;font-weight:800}
+.hero-stat .lbl{font-size:13px;opacity:.75;margin-top:2px}
+.auth-main{display:flex;gap:0;max-width:1000px;margin:0 auto;width:100%;padding:3rem 1.5rem;align-items:flex-start;gap:3rem;flex-wrap:wrap;justify-content:center}
+.auth-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:2.5rem;width:100%;max-width:400px;box-shadow:var(--shadow-lg);flex-shrink:0}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1.8rem}
+.auth-tab{flex:1;padding:10px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all .15s;margin-bottom:-1px}
+.auth-tab.active{color:var(--indigo);border-bottom-color:var(--indigo)}
+.auth-err{font-size:13px;color:var(--red);margin-bottom:1rem;padding:10px 12px;background:var(--red-l);border-radius:8px;display:none}
+.field-wrap{margin-bottom:1rem}
+.field-label{font-size:13px;font-weight:500;margin-bottom:6px;display:block;color:var(--text2)}
+.field{position:relative}
+.field input{width:100%;padding:10px 14px 10px 40px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;outline:none;transition:all .15s;background:var(--bg);color:var(--text)}
+.field input:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(79,70,229,.12);background:var(--white)}
+.field-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--light);font-size:16px;pointer-events:none}
+.eye-toggle{position:absolute;right:13px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--light);font-size:14px;background:none;border:none}
+.row-between{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.3rem;font-size:13px}
+.check-row{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.check-row input{accent-color:var(--indigo)}
+.forgot{color:var(--indigo);cursor:pointer;font-weight:500}
+.btn-primary{width:100%;padding:12px;background:linear-gradient(135deg,#6366F1,#4F46E5);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer;transition:all .15s;box-shadow:0 2px 8px rgba(79,70,229,.35)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(79,70,229,.45)}
+.divider{display:flex;align-items:center;gap:10px;margin:1.2rem 0;font-size:12px;color:var(--light)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.btn-google{width:100%;padding:11px;background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:all .15s;color:var(--text)}
+.btn-google:hover{border-color:var(--border-s);background:var(--bg);box-shadow:var(--shadow)}
+.auth-footer-text{font-size:13px;color:var(--muted);text-align:center;margin-top:1.2rem}
+.auth-footer-text a{color:var(--indigo);cursor:pointer;font-weight:600}
+.auth-features{flex:1;min-width:280px;max-width:420px}
+.auth-features h2{font-size:22px;font-weight:700;margin-bottom:1.5rem;letter-spacing:-.3px}
+.feature-item{display:flex;gap:14px;margin-bottom:1.4rem;align-items:flex-start}
+.feature-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.fi-indigo{background:var(--indigo-l)}.fi-green{background:var(--green-l)}.fi-amber{background:var(--amber-l)}.fi-blue{background:var(--blue-l)}
+.feature-item h3{font-size:14px;font-weight:600;margin-bottom:3px}
+.feature-item p{font-size:13px;color:var(--muted);line-height:1.5}
+.auth-page-footer{text-align:center;font-size:12px;color:var(--light);padding:1.5rem;border-top:1px solid var(--border);background:var(--white)}
+#app{display:none;min-height:100vh}
+.topbar{position:fixed;top:0;left:0;right:0;height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;padding:0 1.4rem;z-index:200;box-shadow:var(--shadow)}
+.topbar .brand{flex-shrink:0;min-width:var(--sidebar);padding-left:4px}
+.search-wrap{flex:1;max-width:580px;position:relative}
+.search-wrap input{width:100%;padding:9px 14px 9px 38px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;background:var(--bg);outline:none;transition:all .15s;color:var(--text)}
+.search-wrap input:focus{border-color:var(--indigo);background:var(--white);box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+.search-wrap .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--light);font-size:15px;pointer-events:none}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.btn-ask{padding:9px 18px;background:linear-gradient(135deg,#6366F1,#4F46E5);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 2px 6px rgba(79,70,229,.3);transition:all .15s;white-space:nowrap}
+.btn-ask:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(79,70,229,.4)}
+.icon-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all .15s;position:relative}
+.icon-btn:hover{background:var(--bg);border-color:var(--border-s)}
+.notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:#EF4444;border-radius:50%;border:2px solid var(--white)}
+.user-menu{display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 10px;border-radius:var(--radius);transition:background .15s}
+.user-menu:hover{background:var(--bg)}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#6366F1,#4F46E5);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.user-info{display:flex;flex-direction:column}
+.user-name-t{font-size:13px;font-weight:600;line-height:1.2}
+.user-rep-t{font-size:11px;color:var(--muted)}
+.admin-badge-topbar{font-size:9px;font-weight:700;background:#7C3AED;color:#fff;padding:1px 6px;border-radius:8px;margin-left:4px}
+.app-body{display:flex;margin-top:60px;min-height:calc(100vh - 60px)}
+.sidebar{width:var(--sidebar);flex-shrink:0;background:var(--white);border-right:1px solid var(--border);padding:1rem 0 2rem;position:fixed;top:60px;bottom:0;overflow-y:auto}
+.nav-group{margin-bottom:.5rem}
+.nav-section-label{font-size:10.5px;font-weight:700;color:var(--light);text-transform:uppercase;letter-spacing:.08em;padding:8px 1.3rem 4px;display:flex;align-items:center;gap:6px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 1.3rem;font-size:13.5px;color:var(--muted);cursor:pointer;transition:all .12s;position:relative}
+.nav-item:hover{background:var(--indigo-ll);color:var(--indigo)}
+.nav-item.active{background:var(--indigo-l);color:var(--indigo);font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:var(--indigo);border-radius:0 2px 2px 0}
+.nav-item.admin-nav{color:#7C3AED}
+.nav-item.admin-nav:hover{background:var(--admin-l);color:var(--admin)}
+.nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.nav-divider{height:1px;background:var(--border);margin:8px 1.3rem}
+.cat-list{padding:0 .8rem}
+.cat-chip{display:inline-flex;align-items:center;padding:5px 11px;margin:3px;font-size:12px;border-radius:20px;cursor:pointer;border:1px solid var(--border);color:var(--muted);transition:all .15s;background:var(--white)}
+.cat-chip:hover{border-color:var(--indigo);color:var(--indigo);background:var(--indigo-ll)}
+.cat-chip.active{border-color:var(--indigo);color:var(--indigo);background:var(--indigo-l);font-weight:600}
+.sidebar-card{margin:1rem 1rem 0;padding:1rem;background:linear-gradient(135deg,var(--indigo-l),var(--indigo-ll));border-radius:12px;border:1px solid rgba(79,70,229,.2)}
+.sidebar-card h4{font-size:13px;font-weight:700;color:var(--indigo);margin-bottom:5px}
+.sidebar-card p{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.sidebar-card button{width:100%;padding:7px;background:var(--indigo);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer}
+.main{margin-left:var(--sidebar);flex:1;padding:1.8rem 2rem 3rem;max-width:960px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4rem;flex-wrap:wrap;gap:10px}
+.page-title{font-size:21px;font-weight:700;letter-spacing:-.3px}
+.breadcrumb{font-size:12px;color:var(--light);margin-bottom:1rem;display:flex;align-items:center;gap:4px}
+.breadcrumb span{cursor:pointer;transition:color .15s}.breadcrumb span:hover{color:var(--indigo)}
+.breadcrumb .sep{color:var(--xlight)}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.6rem}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;box-shadow:var(--shadow)}
+.stat-card .s-num{font-size:24px;font-weight:700;color:var(--text);line-height:1}
+.stat-card .s-lbl{font-size:12px;color:var(--muted);margin-top:4px}
+.stat-card .s-change{font-size:11px;margin-top:6px;font-weight:500}
+.s-up{color:var(--green)}.s-down{color:var(--red)}
+.filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:1rem}
+.filter-tab{padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--white);transition:all .15s}
+.filter-tab:hover{border-color:var(--indigo);color:var(--indigo)}
+.filter-tab.active{background:var(--indigo);color:#fff;border-color:var(--indigo);font-weight:600}
+.sort-select{margin-left:auto;font-size:13px;border:1px solid var(--border);border-radius:8px;padding:6px 11px;color:var(--text);background:var(--white);cursor:pointer;outline:none}
+.q-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.3rem;margin-bottom:10px;cursor:pointer;transition:all .18s;box-shadow:var(--shadow)}
+.q-card:hover{border-color:var(--indigo);box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.q-card-top{display:flex;align-items:flex-start;gap:12px}
+.q-vote-mini{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:36px;padding-top:2px}
+.q-vote-num{font-size:15px;font-weight:700}
+.q-vote-lbl{font-size:10px;color:var(--light)}
+.q-card-body{flex:1;min-width:0}
+.q-card-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;line-height:1.4}
+.q-card-excerpt{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:8px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.q-card-footer{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tag{padding:3px 10px;background:var(--indigo-l);color:var(--indigo);border-radius:20px;font-size:11.5px;font-weight:500;cursor:pointer;transition:background .15s}
+.tag:hover{background:var(--indigo);color:#fff}
+.q-meta-item{font-size:12px;color:var(--light);display:flex;align-items:center;gap:4px;margin-left:auto}
+.q-meta-item span{display:flex;align-items:center;gap:3px}
+.ans-count{padding:2px 8px;border-radius:6px;font-size:12px;font-weight:600}
+.ans-has{background:var(--green-l);color:var(--green)}
+.ans-none{background:var(--bg);color:var(--muted)}
+.bookmark-btn{padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:none;cursor:pointer;font-size:13px;color:var(--light);transition:all .15s}
+.bookmark-btn:hover,.bookmark-btn.saved{color:var(--amber);border-color:var(--amber)}
+.pinned-badge{font-size:10px;font-weight:700;background:var(--amber-l);color:var(--amber);padding:2px 8px;border-radius:10px;border:1px solid var(--amber)}
+.q-detail-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.6rem;margin-bottom:1.2rem;box-shadow:var(--shadow)}
+.q-detail-title{font-size:22px;font-weight:700;margin-bottom:12px;line-height:1.35;letter-spacing:-.3px}
+.q-tags-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.q-body{font-size:14.5px;color:var(--text2);line-height:1.75;margin-bottom:14px}
+.q-meta-bar{display:flex;align-items:center;gap:16px;font-size:12px;color:var(--light);padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap}
+.q-meta-bar span{display:flex;align-items:center;gap:5px}
+.q-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.q-act-btn{padding:6px 12px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;background:none;color:var(--muted);transition:all .15s;display:flex;align-items:center;gap:5px}
+.q-act-btn:hover{border-color:var(--indigo);color:var(--indigo);background:var(--indigo-ll)}
+.q-act-btn.admin-btn{border-color:#7C3AED;color:#7C3AED}
+.q-act-btn.admin-btn:hover{background:var(--admin-l)}
+.ai-box{border-radius:14px;padding:1.2rem 1.4rem;margin-bottom:1.2rem;display:none;position:relative;overflow:hidden}
+.ai-box.show{display:block}
+.ai-box-inner{background:linear-gradient(135deg,var(--indigo-l) 0%,var(--blue-l) 100%);border:1.5px solid rgba(79,70,229,.25);border-radius:14px;padding:1.2rem 1.4rem}
+.ai-box-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ai-badge{font-size:11px;font-weight:700;color:var(--indigo);text-transform:uppercase;letter-spacing:.07em;background:var(--indigo-l);padding:3px 9px;border-radius:20px;border:1px solid rgba(79,70,229,.2)}
+.ai-box-body{font-size:14px;color:var(--text2);line-height:1.7}
+.ai-winner{display:inline-flex;align-items:center;gap:6px;background:var(--indigo);color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:8px}
+.answers-section-header{display:flex;align-items:center;justify-content:space-between;margin:1.4rem 0 1rem;flex-wrap:wrap;gap:8px}
+.answers-section-header h2{font-size:16px;font-weight:700}
+.btn-ai{padding:8px 16px;background:linear-gradient(135deg,#7C3AED,#4F46E5);color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 2px 8px rgba(124,58,237,.3);transition:all .15s}
+.btn-ai:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(124,58,237,.4)}
+.btn-ai:disabled{opacity:.6;cursor:default;transform:none}
+.answer-card{display:flex;gap:14px;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.2rem 1.4rem;margin-bottom:12px;transition:all .15s;box-shadow:var(--shadow)}
+.answer-card.top-ans{border-color:var(--indigo);border-width:2px;background:linear-gradient(135deg,var(--indigo-ll),var(--white))}
+.answer-card.pinned-ans{border-color:var(--amber);border-width:2px}
+.vote-col{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:42px}
+.vbtn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.vbtn:hover.vup{border-color:var(--green);color:var(--green);background:var(--green-l)}
+.vbtn:hover.vdn{border-color:var(--red);color:var(--red);background:var(--red-l)}
+.vbtn.voted-up{border-color:var(--green);color:var(--green);background:var(--green-l)}
+.vbtn.voted-dn{border-color:var(--red);color:var(--red);background:var(--red-l)}
+.vote-num{font-size:17px;font-weight:700;line-height:1}
+.rank-pip{margin-top:4px;font-size:11px;font-weight:700;padding:2px 6px;border-radius:6px;text-align:center}
+.rp1{background:#FEF3C7;color:#B45309}.rp2{background:#F3F4F6;color:var(--silver)}.rp3{background:#FEF3C7;color:var(--bronze)}
+.ans-body{flex:1;min-width:0}
+.ans-author-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.author-block{display:flex;align-items:center;gap:10px}
+.a-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:#fff}
+.a-name{font-size:13px;font-weight:600}
+.a-rep{font-size:11px;color:var(--light);margin-top:1px}
+.badges-row{display:flex;gap:3px;margin-top:2px}
+.bge{font-size:10px;font-weight:600;padding:1px 5px;border-radius:4px}
+.bg-g{background:#FEF3C7;color:#B45309}.bg-s{background:#F3F4F6;color:#6B7280}.bg-b{background:#FEF3C7;color:var(--bronze)}
+.anon-badge{font-size:10px;font-weight:700;background:var(--bg);color:var(--muted);padding:2px 7px;border-radius:8px;border:1px solid var(--border)}
+.ans-date{font-size:11px;color:var(--light)}
+.ans-text{font-size:14px;color:var(--text);line-height:1.75;margin-bottom:12px}
+.ans-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.act-btn{background:none;border:none;cursor:pointer;font-size:12px;color:var(--light);display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:6px;transition:all .15s}
+.act-btn:hover{background:var(--bg);color:var(--indigo)}
+.accepted-badge{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--green);background:var(--green-l);padding:3px 9px;border-radius:20px}
+.your-ans-box{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin-top:1.4rem;box-shadow:var(--shadow)}
+.your-ans-box h3{font-size:15px;font-weight:700;margin-bottom:12px}
+.anon-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:10px;padding:8px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)}
+.anon-toggle input{accent-color:var(--indigo)}
+.ans-toolbar{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.toolbar-btn{padding:4px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:var(--white);color:var(--muted);transition:all .15s}
+.toolbar-btn:hover{border-color:var(--indigo);color:var(--indigo)}
+.your-ans-box textarea{width:100%;min-height:120px;padding:12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;resize:vertical;outline:none;background:var(--bg);color:var(--text);transition:all .15s;line-height:1.6}
+.your-ans-box textarea:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(79,70,229,.1);background:var(--white)}
+.ans-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.char-count{font-size:12px;color:var(--light)}
+.btn-submit-ans{padding:10px 22px;background:var(--indigo);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-submit-ans:hover{background:var(--indigo-h)}
+.comments-section{margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
+.comment-item{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
+.comment-item .c-avatar{width:22px;height:22px;border-radius:50%;background:var(--indigo-l);color:var(--indigo);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;margin-top:1px}
+.comment-item .c-text{font-size:12.5px;color:var(--text2);line-height:1.5}
+.comment-item .c-author{font-weight:600;margin-right:5px}
+.add-comment-row{display:flex;gap:8px;margin-top:8px}
+.add-comment-row input{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;outline:none;background:var(--bg);color:var(--text)}
+.add-comment-row input:focus{border-color:var(--indigo)}
+.add-comment-row button{padding:7px 14px;background:var(--indigo);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer}
+.related-panel{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;margin-top:1.2rem;box-shadow:var(--shadow)}
+.related-panel h4{font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text2)}
+.related-item{padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:color .15s}
+.related-item:last-child{border-bottom:none}
+.related-item:hover{color:var(--indigo)}
+.related-item .r-title{font-size:13px;line-height:1.4;margin-bottom:3px}
+.related-item .r-meta{font-size:11px;color:var(--light)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:18px;padding:2rem;width:100%;max-width:560px;position:relative;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4rem}
+.modal-header h2{font-size:18px;font-weight:700;letter-spacing:-.2px}
+.modal-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .15s}
+.modal-close:hover{background:var(--red-l);color:var(--red);border-color:var(--red)}
+.modal label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;margin-top:14px;color:var(--text2)}
+.modal label:first-of-type{margin-top:0}
+.modal input,.modal textarea,.modal select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;outline:none;transition:all .15s;background:var(--bg);color:var(--text)}
+.modal input:focus,.modal textarea:focus,.modal select:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(79,70,229,.1);background:var(--white)}
+.modal textarea{min-height:100px;resize:vertical;line-height:1.6}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:1.4rem}
+.btn-cancel{padding:10px 18px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);font-size:14px;cursor:pointer;color:var(--text);font-weight:500;transition:all .15s}
+.btn-cancel:hover{border-color:var(--border-s)}
+.btn-post{padding:10px 20px;background:var(--indigo);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-post:hover{background:var(--indigo-h)}
+.ai-suggest-btn{padding:7px 12px;background:linear-gradient(135deg,#7C3AED,#4F46E5);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;margin-top:6px}
+.notif-dropdown{position:fixed;top:66px;right:70px;width:320px;background:var(--white);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-lg);z-index:300;display:none}
+.notif-dropdown.open{display:block}
+.notif-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
+.notif-header h4{font-size:14px;font-weight:700}
+.mark-all{font-size:12px;color:var(--indigo);cursor:pointer;font-weight:500}
+.notif-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;align-items:flex-start}
+.notif-item:hover{background:var(--bg)}
+.notif-item.unread{background:var(--indigo-ll)}
+.notif-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.notif-body{flex:1;min-width:0}
+.notif-text{font-size:12.5px;color:var(--text2);line-height:1.4}
+.notif-time{font-size:11px;color:var(--light);margin-top:2px}
+.notif-dot2{width:7px;height:7px;background:var(--indigo);border-radius:50%;flex-shrink:0;margin-top:5px}
+.profile-dropdown{position:fixed;top:66px;right:14px;width:220px;background:var(--white);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-lg);z-index:300;display:none;overflow:hidden}
+.profile-dropdown.open{display:block}
+.profile-header{padding:12px 14px;border-bottom:1px solid var(--border)}
+.profile-header .p-name{font-size:14px;font-weight:700}
+.profile-header .p-email{font-size:11px;color:var(--muted)}
+.profile-header .p-rep{font-size:12px;color:var(--amber);font-weight:600;margin-top:3px}
+.p-menu-item{display:flex;align-items:center;gap:10px;padding:9px 14px;font-size:13px;color:var(--text2);cursor:pointer;transition:background .15s}
+.p-menu-item:hover{background:var(--bg)}
+.p-menu-item.danger{color:var(--red)}
+.p-menu-item.danger:hover{background:var(--red-l)}
+.p-menu-item.admin-item{color:#7C3AED;font-weight:600}
+.p-menu-item.admin-item:hover{background:var(--admin-l)}
+.toast{position:fixed;bottom:24px;right:24px;background:#1F2937;color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;z-index:1000;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast-icon{font-size:16px}
+.trending-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;box-shadow:var(--shadow)}
+.trending-card h4{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.trend-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.trend-item:last-child{border-bottom:none}
+.trend-num{font-size:14px;font-weight:700;color:var(--xlight);min-width:20px}
+.trend-title{font-size:12.5px;color:var(--text2);line-height:1.4;transition:color .15s}
+.trend-item:hover .trend-title{color:var(--indigo)}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--muted)}
+.empty-state .e-icon{font-size:48px;margin-bottom:12px}
+.empty-state h3{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
+.skeleton{background:linear-gradient(90deg,var(--border) 25%,var(--bg) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;height:16px;margin-bottom:8px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.spin{animation:spin .8s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Admin panel */
+.admin-panel{background:linear-gradient(135deg,#1E1B4B,#2D1B69);border-radius:14px;padding:1.5rem;margin-bottom:1.2rem;color:#fff;border:1px solid rgba(124,58,237,.3)}
+.admin-panel h3{font-size:16px;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.admin-section{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.2rem;margin-bottom:1rem;box-shadow:var(--shadow)}
+.admin-section h4{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.admin-row{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;background:var(--bg)}
+.admin-row .a-info{flex:1}
+.admin-row .a-info .a-email{font-size:12px;color:var(--muted)}
+.admin-row .a-info .a-nm{font-size:13px;font-weight:600}
+.btn-sm{padding:5px 12px;font-size:12px;font-weight:600;border-radius:6px;cursor:pointer;border:none;transition:all .15s}
+.btn-sm-red{background:var(--red-l);color:var(--red)}.btn-sm-red:hover{background:var(--red);color:#fff}
+.btn-sm-green{background:var(--green-l);color:var(--green)}.btn-sm-green:hover{background:var(--green);color:#fff}
+.btn-sm-purple{background:var(--admin-l);color:var(--admin)}.btn-sm-purple:hover{background:var(--admin);color:#fff}
+.btn-sm-amber{background:var(--amber-l);color:var(--amber)}.btn-sm-amber:hover{background:var(--amber);color:#fff}
+.banned-badge{font-size:10px;font-weight:700;background:var(--red-l);color:var(--red);padding:2px 7px;border-radius:8px;border:1px solid var(--red)}
+.superadmin-badge{font-size:10px;font-weight:700;background:linear-gradient(135deg,#7C3AED,#4F46E5);color:#fff;padding:2px 7px;border-radius:8px}
+.admin-tag-badge{font-size:10px;font-weight:700;background:var(--admin-l);color:var(--admin);padding:2px 7px;border-radius:8px;border:1px solid rgba(124,58,237,.2)}
+.loc-badge{font-size:10px;background:var(--green-l);color:var(--green);padding:2px 8px;border-radius:8px;font-weight:600}
+.loc-badge.pending{background:var(--amber-l);color:var(--amber)}
+.loc-badge.unverified{background:var(--bg);color:var(--muted)}
+/* Ranking */
+.rank-card{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.rank-header{display:flex;gap:0;border-bottom:1px solid var(--border)}
+.rank-tab{flex:1;padding:10px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:all .15s}
+.rank-tab.active{color:var(--indigo);border-bottom-color:var(--indigo)}
+.rank-row{display:flex;align-items:center;gap:14px;padding:14px 1.4rem;border-bottom:1px solid var(--border)}
+.rank-row:last-child{border-bottom:none}
+.rank-row.me{background:var(--indigo-ll)}
+.rank-pos{font-size:18px;font-weight:800;width:28px;text-align:center}
+@media(max-width:768px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .sidebar{display:none}
+  .main{margin-left:0;padding:1rem}
+  .topbar .brand{min-width:auto}
+  .user-info{display:none}
+}
+/* Location verify modal */
+.loc-modal{max-width:420px}
+.loc-steps{margin-top:12px}
+.loc-step{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border)}
+.loc-step:last-child{border-bottom:none}
+.loc-step-num{width:24px;height:24px;border-radius:50%;background:var(--indigo);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.loc-step-body{flex:1}
+.loc-step-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.loc-step-desc{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth">
+  <nav class="auth-nav">
+    <div class="brand"><div class="brand-icon">Q</div>QRank</div>
+    <div style="display:flex;gap:28px;font-size:14px;color:var(--muted)">
+      <span>Home</span><span>Features</span><span>About</span>
+    </div>
+  </nav>
+  <div class="auth-hero">
+    <h1>Where the Best Answers Rise to the Top</h1>
+    <p>Ask questions, share knowledge, and let the community rank the most accurate and helpful answers through AI-powered analysis.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">12.4K</div><div class="lbl">Questions asked</div></div>
+      <div class="hero-stat"><div class="num">48.2K</div><div class="lbl">Answers posted</div></div>
+      <div class="hero-stat"><div class="num">3.1K</div><div class="lbl">Active members</div></div>
+      <div class="hero-stat"><div class="num">98%</div><div class="lbl">Questions answered</div></div>
+    </div>
+  </div>
+  <div class="auth-main">
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Log in</div>
+        <div class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign up</div>
+      </div>
+      <div id="auth-err" class="auth-err"></div>
+      <div class="field-wrap">
+        <label class="field-label">Email address</label>
+        <div class="field"><span class="field-icon">✉</span>
+          <input id="login-email" type="email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doLogin()"/>
+        </div>
+      </div>
+      <div class="field-wrap" id="name-field" style="display:none">
+        <label class="field-label">Full name</label>
+        <div class="field"><span class="field-icon">👤</span>
+          <input id="login-name" type="text" placeholder="Your name"/>
+        </div>
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">Password</label>
+        <div class="field"><span class="field-icon">🔒</span>
+          <input id="login-pwd" type="password" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()"/>
+          <button class="eye-toggle" onclick="togglePwd()" type="button">👁</button>
+        </div>
+      </div>
+      <div class="row-between">
+        <label class="check-row"><input type="checkbox" id="remember-me" checked/> Remember me</label>
+        <span class="forgot">Forgot password?</span>
+      </div>
+      <button class="btn-primary" onclick="doLogin()" id="login-btn">Log in</button>
+      <div class="divider">or continue with</div>
+      <button class="btn-google" onclick="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 20H24v8.5h11.8C34.7 33.9 29.8 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-7.6 20-21 0-1.3-.2-2.7-.5-4z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15 17.1 19.2 14 24 14c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 5.1 29.6 3 24 3 16.3 3 9.7 7.9 6.3 14.7z"/><path fill="#FBBC05" d="M24 45c5.5 0 10.5-1.9 14.4-5.1l-6.7-5.5C29.8 35.7 27 37 24 37c-4.7 0-8.8-3-10.3-7.2l-6.9 5.3C9.9 41.2 16.4 45 24 45z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.8c-.9 2.8-2.9 5.1-5.5 6.6l6.7 5.5C41.1 37.2 45 31.1 45 24c0-1.3-.2-2.7-.5-4z"/></svg>
+        Continue with Google
+      </button>
+      <div class="auth-footer-text" id="auth-switch-text">Don't have an account? <a onclick="switchTab('signup')">Sign up free</a></div>
+    </div>
+    <div class="auth-features">
+      <h2>Everything you need to get answers</h2>
+      <div class="feature-item"><div class="feature-icon fi-indigo">🤖</div><div><h3>AI-powered best answer</h3><p>Claude analyses all answers and surfaces the most accurate and complete response instantly.</p></div></div>
+      <div class="feature-item"><div class="feature-icon fi-green">📊</div><div><h3>Community ranking</h3><p>Answers are ranked by votes, helpfulness ratings and expert reputation scores.</p></div></div>
+      <div class="feature-item"><div class="feature-icon fi-amber">🏆</div><div><h3>Reputation system</h3><p>Earn points for great answers and build your expert profile across topics.</p></div></div>
+      <div class="feature-item"><div class="feature-icon fi-blue">🕶</div><div><h3>Anonymous mode</h3><p>Post questions and answers anonymously — only admins can see your real identity.</p></div></div>
+    </div>
+  </div>
+  <div class="auth-page-footer">© 2024 QRank · Philippines Community · Privacy · Terms</div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="brand"><div class="brand-icon">Q</div>QRank</div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search questions, tags, or topics…" id="search-input" oninput="handleSearch()"/>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-ask" onclick="openAskModal()">+ Ask Question</button>
+      <div class="icon-btn" onclick="toggleNotifs()" id="notif-btn">🔔<span class="notif-dot" id="notif-dot"></span></div>
+      <div class="icon-btn" onclick="toggleDark()" id="dark-btn">🌙</div>
+      <div class="user-menu" onclick="toggleProfile()">
+        <div class="avatar" id="top-avatar">JD</div>
+        <div class="user-info">
+          <div class="user-name-t" id="top-name">John Doe</div>
+          <div class="user-rep-t" id="top-rep">⭐ 0 rep</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notif-dropdown" id="notif-dd">
+    <div class="notif-header"><h4>Notifications</h4><span class="mark-all" onclick="markAllRead()">Mark all read</span></div>
+    <div id="notif-list"></div>
+  </div>
+
+  <div class="profile-dropdown" id="profile-dd">
+    <div class="profile-header">
+      <div class="p-name" id="pd-name">John Doe</div>
+      <div class="p-email" id="pd-email">user@example.com</div>
+      <div class="p-rep" id="pd-rep">⭐ 0 reputation points</div>
+    </div>
+    <div class="p-menu-item" onclick="showProfile()">👤 My profile</div>
+    <div class="p-menu-item" onclick="showBookmarks()">🔖 Saved questions</div>
+    <div class="p-menu-item" onclick="showMyQuestions()">❓ My questions</div>
+    <div class="p-menu-item" onclick="showMyAnswers()">💬 My answers</div>
+    <div class="p-menu-item" id="admin-menu-item" style="display:none" onclick="showAdminPanel()">🛡 Admin Panel</div>
+    <div class="p-menu-item danger" onclick="logout()">🚪 Log out</div>
+  </div>
+
+  <div class="app-body">
+    <aside class="sidebar">
+      <div class="nav-group">
+        <div class="nav-item active" id="nav-home" onclick="navTo('home')"><span class="nav-icon">🏠</span>Home</div>
+        <div class="nav-item" id="nav-questions" onclick="navTo('questions')"><span class="nav-icon">❓</span>Questions</div>
+        <div class="nav-item" id="nav-bookmarks" onclick="showBookmarks()"><span class="nav-icon">🔖</span>Bookmarks</div>
+        <div class="nav-item" id="nav-leaderboard" onclick="showLeaderboard()"><span class="nav-icon">🏆</span>Leaderboard</div>
+        <div class="nav-item" id="nav-ranking" onclick="showRanking()"><span class="nav-icon">📊</span>Rankings</div>
+        <div class="nav-item" id="nav-profile" onclick="showProfile()"><span class="nav-icon">👤</span>My Profile</div>
+        <div class="nav-item admin-nav" id="nav-admin" style="display:none" onclick="showAdminPanel()"><span class="nav-icon">🛡</span>Admin Panel</div>
+      </div>
+      <div class="nav-divider"></div>
+      <div class="nav-group">
+        <div class="nav-section-label">Categories</div>
+        <div class="cat-list" id="cat-list"></div>
+      </div>
+      <div class="nav-divider"></div>
+      <div class="sidebar-card">
+        <h4>🤖 AI Assistant</h4>
+        <p>Use AI to find the best answer, suggest improvements, or summarise discussions.</p>
+        <button onclick="openAskModal()">Ask a question</button>
+      </div>
+    </aside>
+    <main class="main" id="main"></main>
+  </div>
+</div>
+
+<!-- ASK MODAL -->
+<div class="overlay" id="ask-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Ask a Question</h2>
+      <button class="modal-close" onclick="closeAskModal()">✕</button>
+    </div>
+    <label>Question title <span style="color:var(--red)">*</span></label>
+    <input id="nq-title" type="text" placeholder="e.g. How does quicksort work?" oninput="updateTitleSuggest()"/>
+    <div id="title-warn" style="font-size:12px;color:var(--amber);margin-top:4px;display:none">Be specific — a clear title gets better answers.</div>
+    <label>Details <span style="color:var(--red)">*</span></label>
+    <textarea id="nq-body" placeholder="Explain your question with as much context as possible…"></textarea>
+    <button class="ai-suggest-btn" onclick="aiSuggestTags()">🤖 AI: suggest tags</button>
+    <label>Tags</label>
+    <input id="nq-tags" placeholder="e.g. Algorithms, Python, Sorting"/>
+    <label>Category</label>
+    <select id="nq-cat" onchange=""></select>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+      <input type="checkbox" id="nq-anon" style="width:auto;accent-color:var(--indigo)"/>
+      Post anonymously <span style="font-size:11px;color:var(--muted);font-weight:400">(admins can still see who you are)</span>
+    </label>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeAskModal()">Cancel</button>
+      <button class="btn-post" onclick="postQuestion()">Post Question</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CATEGORY MODAL (admin) -->
+<div class="overlay" id="cat-modal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header">
+      <h2>➕ Add Category</h2>
+      <button class="modal-close" onclick="closeCatModal()">✕</button>
+    </div>
+    <label>Category name</label>
+    <input id="new-cat-name" placeholder="e.g. Gaming, Sports, Finance"/>
+    <label>Emoji icon</label>
+    <input id="new-cat-icon" placeholder="e.g. 🎮" maxlength="4" style="font-size:24px;text-align:center"/>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeCatModal()">Cancel</button>
+      <button class="btn-post" onclick="addCategory()">Add Category</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOCATION VERIFY MODAL -->
+<div class="overlay" id="loc-modal">
+  <div class="modal loc-modal">
+    <div class="modal-header">
+      <h2>📍 Location Verification</h2>
+      <button class="modal-close" onclick="document.getElementById('loc-modal').classList.remove('open')">✕</button>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">To confirm you're posting from the Philippines, we'll request your device location. This is optional but helps build community trust.</p>
+    <div id="loc-result" style="margin-bottom:12px"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="document.getElementById('loc-modal').classList.remove('open')">Skip</button>
+      <button class="btn-post" onclick="verifyLocation()">📍 Share my location</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span class="toast-icon" id="toast-icon">✅</span><span id="toast-msg"></span></div>
+
+<script>
+/* ══ PERMANENT SUPER-ADMINS (hardcoded) ══ */
+const SUPER_ADMINS = new Set([
+  'newaccformy80@gmail.com',
+  'marivicbulayog01@gmail.com',
+  'suanbulayog@gmail.com',
+  'pk0079399@gmail.com'
+]);
+
+/* ══ STATE ══ */
+let currentUser = null, darkMode = false, bookmarks = new Set(), votedAnswers = {};
+let activeNav = 'home', activeCat = 'All', currentQ = null, notifications = [];
+let pinnedAnswers = {}; // qid -> aid
+
+const DEFAULT_CATS = [
+  {name:'All',icon:'🔭'},
+  {name:'Programming',icon:'💻'},
+  {name:'Technology',icon:'📡'},
+  {name:'Science',icon:'🔬'},
+  {name:'Mathematics',icon:'➗'},
+  {name:'Business',icon:'💼'},
+  {name:'Design',icon:'🎨'},
+  {name:'Gaming',icon:'🎮'},
+  {name:'Other',icon:'📦'}
+];
+
+function getCats(){
+  try{const c=JSON.parse(localStorage.getItem('qrank_cats'));return c&&c.length?c:DEFAULT_CATS;}catch{return DEFAULT_CATS;}
+}
+function saveCats(c){localStorage.setItem('qrank_cats',JSON.stringify(c));}
+
+const COLORS=['#6366F1','#059669','#D97706','#2563EB','#7C3AED','#DB2777','#0891B2','#EA580C'];
+const avatarColors=['#6366F1','#059669','#D97706','#2563EB','#7C3AED','#DB2777','#0891B2'];
+function avatarColor(n){return avatarColors[n.charCodeAt(0)%avatarColors.length]}
+
+/* ══ ADMIN HELPERS ══ */
+function getAdmins(){try{return JSON.parse(localStorage.getItem('qrank_admins')||'[]')}catch{return[]}}
+function saveAdmins(a){localStorage.setItem('qrank_admins',JSON.stringify(a))}
+function getBanned(){try{return JSON.parse(localStorage.getItem('qrank_banned')||'[]')}catch{return[]}}
+function saveBanned(b){localStorage.setItem('qrank_banned',JSON.stringify(b))}
+function isAdmin(email){return SUPER_ADMINS.has(email)||getAdmins().includes(email)}
+function isSuperAdmin(email){return SUPER_ADMINS.has(email)}
+function isBanned(email){return getBanned().includes(email)}
+
+/* ══ QUESTIONS ══ */
+let questions=[
+  {id:1,title:'What is the time complexity of binary search?',
+   body:"I'm trying to understand the time complexity of binary search. Can someone explain the best, average, and worst cases with a mathematical proof?",
+   tags:['Algorithms','Binary Search','Complexity'],cat:'Programming',author:'Alice Chen',realAuthor:'Alice Chen',anon:false,
+   date:'May 20, 2024',views:1482,pinned:false,answers:[
+    {id:1,author:'Mike Johnson',realAuthor:'Mike Johnson',initials:'MJ',anon:false,rep:12400,gold:5,silver:28,bronze:101,date:'May 20, 2024',
+     text:"Binary search has O(log n) time complexity. In each step we halve the search space: starting with n elements, after 1 step we have n/2, after 2 steps n/4, and so on until 1 element remains. This takes at most ⌈log₂(n)⌉ steps. Best case is O(1) when the target is the middle element. Worst and average case are both O(log n), making it highly efficient for large sorted datasets.",
+     votes:128,helpful:45,pinned:false,comments:[{author:'Sarah L',text:'Great explanation! The mathematical part is very clear.'}]},
+    {id:2,author:'Sarah Lee',realAuthor:'Sarah Lee',initials:'SL',anon:false,rep:8700,gold:3,silver:17,bronze:56,date:'May 20, 2024',
+     text:"To add to Mike's answer: the recurrence relation is T(n) = T(n/2) + O(1). By Master Theorem (case 2), this solves to T(n) = O(log n). Best case O(1), average O(log n), worst O(log n). Space complexity is O(1) for iterative, O(log n) for recursive due to call stack.",
+     votes:85,helpful:32,pinned:false,comments:[]},
+  ]},
+  {id:2,title:'How does the JavaScript event loop work?',
+   body:"I keep hearing about the event loop in JS but struggle to understand how async code executes. Can someone explain the call stack, task queue, and microtask queue?",
+   tags:['JavaScript','Async','Event Loop'],cat:'Programming',author:'Bob Martinez',realAuthor:'Bob Martinez',anon:false,
+   date:'May 21, 2024',views:890,pinned:false,answers:[
+    {id:1,author:'Alice Chen',realAuthor:'Alice Chen',initials:'AC',anon:false,rep:15200,gold:8,silver:34,bronze:120,date:'May 21, 2024',
+     text:"The event loop has three key components: (1) Call Stack — where synchronous code executes, (2) Microtask Queue — holds Promise callbacks and queueMicrotask(), processed after each task, (3) Task Queue — holds setTimeout, setInterval, I/O callbacks. Order: call stack empties → drain entire microtask queue → pick one task from task queue → repeat. This is why async/await (Promises) always resolve before setTimeout.",
+     votes:210,helpful:88,pinned:false,comments:[]},
+  ]},
+  {id:3,title:'Best RPG games of 2024?',
+   body:"Looking for RPG recommendations from 2024. I love deep story, open world, and great combat. What are your picks?",
+   tags:['RPG','Games','2024'],cat:'Gaming',author:'GamerPH',realAuthor:'GamerPH',anon:false,
+   date:'Jun 10, 2024',views:540,pinned:false,answers:[
+    {id:1,author:'Anonymous',realAuthor:'PlaytimePH',initials:'??',anon:true,rep:800,gold:0,silver:2,bronze:8,date:'Jun 10, 2024',
+     text:"Elden Ring DLC (Shadow of the Erdtree) is probably the biggest 2024 RPG release — massive, brutal, and stunning. If you want something lighter, Dragon's Dogma 2 is incredible for open-world exploration and unique pawn system.",
+     votes:34,helpful:12,pinned:false,comments:[]},
+  ]},
+  {id:4,title:'How do I centre a div in CSS?',
+   body:"This seems like it should be simple but I keep running into issues. What's the modern best practice for centering a div both horizontally and vertically?",
+   tags:['CSS','HTML','Layout','Flexbox'],cat:'Design',author:'Helen Park',realAuthor:'Helen Park',anon:false,
+   date:'May 24, 2024',views:2100,pinned:false,answers:[
+    {id:1,author:'Ivan Torres',realAuthor:'Ivan Torres',initials:'IT',anon:false,rep:4300,gold:2,silver:12,bronze:40,date:'May 24, 2024',
+     text:"Modern approach with Flexbox: parent { display: flex; justify-content: center; align-items: center; }. Or with CSS Grid: parent { display: grid; place-items: center; }. For absolute positioning: parent { position: relative; } child { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }. Flexbox is the most widely recommended approach for its simplicity and flexibility.",
+     votes:89,helpful:42,pinned:false,comments:[]},
+  ]},
+];
+
+/* ══ AUTH ══ */
+let isSignup=false;
+function getAccounts(){try{return JSON.parse(localStorage.getItem('qrank_accounts')||'{}')}catch{return{}}}
+function saveAccounts(a){localStorage.setItem('qrank_accounts',JSON.stringify(a))}
+function hashPwd(p){let h=0;for(let i=0;i<p.length;i++){h=(Math.imul(31,h)+p.charCodeAt(i))|0;}return h.toString(36)}
+function saveSession(e){localStorage.setItem('qrank_session',e)}
+function clearSession(){localStorage.removeItem('qrank_session')}
+function getSavedSession(){return localStorage.getItem('qrank_session')||null}
+
+function switchTab(tab){
+  isSignup=tab==='signup';
+  document.getElementById('tab-login').classList.toggle('active',!isSignup);
+  document.getElementById('tab-signup').classList.toggle('active',isSignup);
+  document.getElementById('login-btn').textContent=isSignup?'Create account':'Log in';
+  document.getElementById('name-field').style.display=isSignup?'block':'none';
+  document.getElementById('auth-switch-text').innerHTML=isSignup
+    ?'Already have an account? <a onclick="switchTab(\'login\')">Log in</a>'
+    :'Don\'t have an account? <a onclick="switchTab(\'signup\')">Sign up free</a>';
+  document.getElementById('auth-err').style.display='none';
+  if(!isSignup){
+    const r=localStorage.getItem('qrank_remember')||'';
+    const rp=localStorage.getItem('qrank_remember_pwd')||'';
+    if(r){document.getElementById('login-email').value=r;document.getElementById('remember-me').checked=true;}
+    if(rp)document.getElementById('login-pwd').value=rp;
+  }
+}
+function togglePwd(){const i=document.getElementById('login-pwd');i.type=i.type==='password'?'text':'password';}
+
+function doLogin(){
+  const email=document.getElementById('login-email').value.trim().toLowerCase();
+  const pwd=document.getElementById('login-pwd').value;
+  const nameVal=document.getElementById('login-name').value.trim();
+  const remember=document.getElementById('remember-me').checked;
+  const err=document.getElementById('auth-err');
+  err.style.display='none';
+  if(!email||!email.includes('@')){err.style.display='block';err.textContent='Please enter a valid email address.';return;}
+  if(!pwd){err.style.display='block';err.textContent='Please enter a password.';return;}
+  if(isBanned(email)){err.style.display='block';err.textContent='This account has been banned. Contact an admin.';return;}
+  const accounts=getAccounts();
+  if(isSignup){
+    if(!nameVal){err.style.display='block';err.textContent='Please enter your full name.';return;}
+    if(pwd.length<6){err.style.display='block';err.textContent='Password must be at least 6 characters.';return;}
+    if(accounts[email]){err.style.display='block';err.textContent='An account with this email already exists.';return;}
+    accounts[email]={name:nameVal,passwordHash:hashPwd(pwd),rep:0,joinDate:new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'}),location:null,locVerified:false};
+    saveAccounts(accounts);
+    if(remember){localStorage.setItem('qrank_remember',email);localStorage.setItem('qrank_remember_pwd',pwd);}else{localStorage.removeItem('qrank_remember');localStorage.removeItem('qrank_remember_pwd');}
+    saveSession(email);loginAs(email,nameVal,0);showToast('Account created! Welcome to QRank 🎉','✅');
+  } else {
+    const acc=accounts[email];
+    if(!acc){err.style.display='block';err.textContent='No account found with this email. Please sign up first.';return;}
+    if(hashPwd(pwd)!==acc.passwordHash){err.style.display='block';err.textContent='Incorrect password.';return;}
+    if(remember){localStorage.setItem('qrank_remember',email);localStorage.setItem('qrank_remember_pwd',pwd);}else{localStorage.removeItem('qrank_remember');localStorage.removeItem('qrank_remember_pwd');}
+    saveSession(email);loginAs(email,acc.name,acc.rep);showToast(`Welcome back, ${acc.name}! 👋`,'✅');
+  }
+}
+
+function loginWithGoogle(){
+  const email=prompt('Enter your Gmail address to continue:','');
+  if(!email)return;
+  const clean=email.trim().toLowerCase();
+  if(!clean.includes('@')){showToast('Please enter a valid email.','❌');return;}
+  if(isBanned(clean)){showToast('This account has been banned.','❌');return;}
+  const accounts=getAccounts();
+  if(!accounts[clean]){
+    const name=clean.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    accounts[clean]={name,passwordHash:'__google__',rep:0,joinDate:new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'}),location:null,locVerified:false};
+    saveAccounts(accounts);localStorage.setItem('qrank_remember',clean);saveSession(clean);loginAs(clean,name,0);showToast('Google account connected! 🎉','✅');
+  } else {
+    const acc=accounts[clean];localStorage.setItem('qrank_remember',clean);saveSession(clean);loginAs(clean,acc.name,acc.rep);showToast(`Welcome back, ${acc.name}! 👋`,'✅');
+  }
+}
+
+function loginAs(email,name,rep=0){
+  const initials=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()||'??';
+  const accounts=getAccounts();
+  const acc=accounts[email]||{};
+  currentUser={email,name,initials,rep:acc.rep||rep,joinDate:acc.joinDate||'Jun 2024',location:acc.location||null,locVerified:acc.locVerified||false};
+  document.getElementById('auth').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('top-avatar').textContent=initials;
+  document.getElementById('top-avatar').style.background=`linear-gradient(135deg,${avatarColor(name)},${avatarColor(name+'x')})`;
+  document.getElementById('top-name').textContent=name+(isAdmin(email)?'':'')+' ';
+  if(isAdmin(email)){
+    const span=document.createElement('span');span.className='admin-badge-topbar';span.textContent=isSuperAdmin(email)?'SUPER ADMIN':'ADMIN';
+    document.getElementById('top-name').appendChild(span);
+    document.getElementById('admin-menu-item').style.display='flex';
+    document.getElementById('nav-admin').style.display='flex';
+  }
+  document.getElementById('pd-name').textContent=name;
+  document.getElementById('pd-email').textContent=email;
+  document.getElementById('top-rep').textContent=`⭐ ${currentUser.rep} rep`;
+  document.getElementById('pd-rep').textContent=`⭐ ${currentUser.rep} reputation points`;
+  buildCatList();buildNotifications();renderHome();
+  // Prompt location verify if not done
+  if(!currentUser.locVerified){
+    setTimeout(()=>showToast('📍 Verify your location to confirm you\'re from the Philippines!','📍'),2000);
+  }
+}
+
+function saveRepToAccount(){
+  if(!currentUser)return;
+  const accounts=getAccounts();
+  if(accounts[currentUser.email]){accounts[currentUser.email].rep=currentUser.rep;saveAccounts(accounts);}
+}
+
+function logout(){
+  saveRepToAccount();clearSession();
+  currentUser=null;bookmarks.clear();votedAnswers={};
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth').style.display='flex';
+  document.getElementById('profile-dd').classList.remove('open');
+  document.getElementById('admin-menu-item').style.display='none';
+  document.getElementById('nav-admin').style.display='none';
+  document.getElementById('login-email').value=localStorage.getItem('qrank_remember')||'';
+  document.getElementById('login-pwd').value=localStorage.getItem('qrank_remember_pwd')||'';
+  switchTab('login');
+}
+
+(function autoLogin(){
+  const session=getSavedSession();if(!session)return;
+  const accounts=getAccounts();const acc=accounts[session];if(!acc)return;
+  loginAs(session,acc.name,acc.rep);
+})();
+// Pre-fill remembered credentials on load
+(function prefillRemember(){
+  const r=localStorage.getItem('qrank_remember')||'';
+  const rp=localStorage.getItem('qrank_remember_pwd')||'';
+  if(r){const el=document.getElementById('login-email');if(el)el.value=r;}
+  if(rp){const el=document.getElementById('login-pwd');if(el)el.value=rp;}
+  if(r){const cb=document.getElementById('remember-me');if(cb)cb.checked=true;}
+})();
+
+/* ══ DARK MODE ══ */
+function toggleDark(){
+  darkMode=!darkMode;
+  document.documentElement.setAttribute('data-theme',darkMode?'dark':'');
+  document.getElementById('dark-btn').textContent=darkMode?'☀️':'🌙';
+}
+
+/* ══ NOTIFICATIONS ══ */
+function buildNotifications(){
+  notifications=[
+    {id:1,icon:'💬',text:'Mike Johnson answered your question about binary search.',time:'2 min ago',unread:true},
+    {id:2,icon:'👍',text:'Your answer was marked helpful by 3 people.',time:'1 hr ago',unread:true},
+    {id:3,icon:'🏆',text:'You earned the "First Answer" badge!',time:'3 hr ago',unread:false},
+  ];
+  renderNotifications();
+}
+function renderNotifications(){
+  document.getElementById('notif-list').innerHTML=notifications.map(n=>`
+    <div class="notif-item ${n.unread?'unread':''}" onclick="readNotif(${n.id})">
+      <div class="notif-icon" style="background:${n.unread?'var(--indigo-l)':'var(--bg)'}">${n.icon}</div>
+      <div class="notif-body"><div class="notif-text">${n.text}</div><div class="notif-time">${n.time}</div></div>
+      ${n.unread?'<div class="notif-dot2"></div>':''}
+    </div>`).join('');
+  const unread=notifications.filter(n=>n.unread).length;
+  document.getElementById('notif-dot').style.display=unread?'block':'none';
+}
+function readNotif(id){notifications=notifications.map(n=>n.id===id?{...n,unread:false}:n);renderNotifications();}
+function markAllRead(){notifications=notifications.map(n=>({...n,unread:false}));renderNotifications();}
+function toggleNotifs(){document.getElementById('notif-dd').classList.toggle('open');document.getElementById('profile-dd').classList.remove('open');}
+function toggleProfile(){document.getElementById('profile-dd').classList.toggle('open');document.getElementById('notif-dd').classList.remove('open');}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#notif-btn')&&!e.target.closest('#notif-dd'))document.getElementById('notif-dd').classList.remove('open');
+  if(!e.target.closest('.user-menu')&&!e.target.closest('#profile-dd'))document.getElementById('profile-dd').classList.remove('open');
+});
+
+/* ══ CATEGORIES ══ */
+function buildCatList(){
+  const cats=getCats();
+  document.getElementById('cat-list').innerHTML=cats.map(c=>`
+    <span class="cat-chip ${c.name===activeCat?'active':''}" onclick="filterCat('${c.name}')">${c.icon||''} ${c.name}</span>`).join('');
+  // Populate question modal select
+  const sel=document.getElementById('nq-cat');
+  if(sel){sel.innerHTML=cats.filter(c=>c.name!=='All').map(c=>`<option>${c.name}</option>`).join('');}
+}
+function filterCat(cat){
+  activeCat=cat;buildCatList();
+  const filtered=cat==='All'?questions:questions.filter(q=>q.cat===cat);
+  renderQuestionList(filtered,cat==='All'?'All Questions':`${cat==='All'?'🔭':getCats().find(c=>c.name===cat)?.icon||''} ${cat} Questions`);
+}
+function navTo(view){
+  activeNav=view;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById('nav-'+view);if(el)el.classList.add('active');
+  if(view==='home')renderHome();
+  else if(view==='questions')renderQuestionList(questions,'All Questions');
+}
+
+/* ══ HOME ══ */
+function renderHome(){
+  const totalVotes=questions.reduce((s,q)=>s+q.answers.reduce((a,x)=>a+x.votes,0),0);
+  document.getElementById('main').innerHTML=`
+    <div class="page-header"><div class="page-title">Welcome back, ${currentUser.name.split(' ')[0]} 👋 ${isAdmin(currentUser.email)?'<span style="background:var(--admin);color:#fff;font-size:12px;padding:2px 10px;border-radius:10px;font-weight:700;margin-left:6px">'+(isSuperAdmin(currentUser.email)?'⭐ Super Admin':'🛡 Admin')+'</span>':''}</div></div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="s-num">${questions.length}</div><div class="s-lbl">Total questions</div><div class="s-change s-up">↑ 3 this week</div></div>
+      <div class="stat-card"><div class="s-num">${questions.reduce((s,q)=>s+q.answers.length,0)}</div><div class="s-lbl">Total answers</div><div class="s-change s-up">↑ 8 this week</div></div>
+      <div class="stat-card"><div class="s-num">${totalVotes}</div><div class="s-lbl">Total votes</div><div class="s-change s-up">↑ 24 this week</div></div>
+      <div class="stat-card"><div class="s-num">${bookmarks.size}</div><div class="s-lbl">Bookmarks</div><div class="s-change" style="color:var(--muted)">Your saved items</div></div>
+    </div>
+    <div class="filter-bar">
+      <span class="filter-tab active" onclick="setFeedFilter(this,'newest')">Newest</span>
+      <span class="filter-tab" onclick="setFeedFilter(this,'popular')">Most popular</span>
+      <span class="filter-tab" onclick="setFeedFilter(this,'unanswered')">Unanswered</span>
+      <span class="filter-tab" onclick="setFeedFilter(this,'bookmarked')">Bookmarked</span>
+      <select class="sort-select" onchange="sortFeed(this.value)">
+        <option value="date">Sort: Date</option>
+        <option value="votes">Sort: Votes</option>
+        <option value="views">Sort: Views</option>
+      </select>
+    </div>
+    <div id="q-feed">${renderQList(questions)}</div>`;
+}
+let feedMode='newest',feedSort='date';
+function setFeedFilter(el,mode){document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');feedMode=mode;applyFeed();}
+function sortFeed(s){feedSort=s;applyFeed();}
+function applyFeed(){
+  let qs=[...questions];
+  if(feedMode==='popular')qs.sort((a,b)=>b.answers.reduce((s,x)=>s+x.votes,0)-a.answers.reduce((s,x)=>s+x.votes,0));
+  else if(feedMode==='unanswered')qs=qs.filter(q=>q.answers.length===0);
+  else if(feedMode==='bookmarked')qs=qs.filter(q=>bookmarks.has(q.id));
+  else qs.sort((a,b)=>b.id-a.id);
+  if(feedSort==='votes')qs.sort((a,b)=>b.answers.reduce((s,x)=>s+x.votes,0)-a.answers.reduce((s,x)=>s+x.votes,0));
+  else if(feedSort==='views')qs.sort((a,b)=>b.views-a.views);
+  const feed=document.getElementById('q-feed');if(feed)feed.innerHTML=renderQList(qs);
+}
+
+function renderQList(qs){
+  if(!qs.length)return`<div class="empty-state"><div class="e-icon">🔍</div><h3>No questions found</h3><p>Try a different filter or be the first to ask!</p></div>`;
+  const totalVotes=q=>q.answers.reduce((s,a)=>s+a.votes,0);
+  // Pinned first
+  const sorted=[...qs].sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
+  return sorted.map(q=>{
+    const displayAuthor = q.anon && !isAdmin(currentUser.email) ? 'Anonymous' : q.author;
+    return `
+    <div class="q-card" onclick="openQuestion(${q.id})">
+      ${q.pinned?'<div style="margin-bottom:6px"><span class="pinned-badge">📌 Pinned by Admin</span></div>':''}
+      <div class="q-card-top">
+        <div class="q-vote-mini">
+          <div class="q-vote-num" style="color:${totalVotes(q)>50?'var(--green)':totalVotes(q)>0?'var(--text)':'var(--light)'}">${totalVotes(q)}</div>
+          <div class="q-vote-lbl">votes</div>
+        </div>
+        <div class="q-card-body">
+          <div class="q-card-title">${q.title}</div>
+          <div class="q-card-excerpt">${q.body}</div>
+          <div class="q-card-footer">
+            ${q.tags.map(t=>`<span class="tag" onclick="event.stopPropagation();filterByTag('${t}')">${t}</span>`).join('')}
+            <span class="ans-count ${q.answers.length?'ans-has':'ans-none'}">${q.answers.length} answers</span>
+            <div class="q-meta-item">
+              <span>👁 ${q.views.toLocaleString()}</span>
+              <span>👤 ${displayAuthor}${q.anon&&isAdmin(currentUser.email)?` <span style="font-size:10px;color:var(--admin)">(${q.realAuthor})</span>`:''}</span>
+              <span>📅 ${q.date}</span>
+            </div>
+            <button class="bookmark-btn ${bookmarks.has(q.id)?'saved':''}" onclick="event.stopPropagation();toggleBookmark(${q.id},this)">${bookmarks.has(q.id)?'🔖':'🏷'}</button>
+          </div>
+        </div>
+      </div>
+    </div>`}).join('');
+}
+
+function filterByTag(tag){renderQuestionList(questions.filter(q=>q.tags.includes(tag)),`Tag: ${tag}`);}
+function renderQuestionList(qs,title){
+  document.getElementById('main').innerHTML=`
+    <div class="breadcrumb"><span onclick="renderHome()">Home</span><span class="sep">›</span>${title}</div>
+    <div class="page-header"><div class="page-title">${title}</div></div>
+    ${renderQList(qs)}`;
+}
+function handleSearch(){
+  const q=document.getElementById('search-input').value.toLowerCase().trim();
+  if(!q){renderHome();return;}
+  const res=questions.filter(x=>x.title.toLowerCase().includes(q)||x.body.toLowerCase().includes(q)||x.tags.some(t=>t.toLowerCase().includes(q)));
+  renderQuestionList(res,`Search: "${q}"`);
+}
+
+/* ══ BOOKMARKS ══ */
+function toggleBookmark(id,btn){
+  if(bookmarks.has(id)){bookmarks.delete(id);if(btn){btn.textContent='🏷';btn.classList.remove('saved')}showToast('Bookmark removed','🗑');}
+  else{bookmarks.add(id);if(btn){btn.textContent='🔖';btn.classList.add('saved')}showToast('Question bookmarked','🔖');}
+}
+function showBookmarks(){document.getElementById('profile-dd').classList.remove('open');renderQuestionList(questions.filter(q=>bookmarks.has(q.id)),'Bookmarked Questions');}
+function showMyQuestions(){document.getElementById('profile-dd').classList.remove('open');renderQuestionList(questions.filter(q=>q.realAuthor===currentUser.name),'My Questions');}
+function showMyAnswers(){document.getElementById('profile-dd').classList.remove('open');renderQuestionList(questions.filter(q=>q.answers.some(a=>a.realAuthor===currentUser.name)),'Questions I Answered');}
+
+/* ══ LEADERBOARD ══ */
+function showLeaderboard(){
+  document.getElementById('profile-dd').classList.remove('open');
+  const users=[
+    {name:'Alice Chen',initials:'AC',rep:15200,answers:48,gold:8,silver:34,bronze:120},
+    {name:'Mike Johnson',initials:'MJ',rep:12400,answers:39,gold:5,silver:28,bronze:101},
+    {name:'Dan Park',initials:'DP',rep:9100,answers:31,gold:6,silver:25,bronze:88},
+    {name:'Sarah Lee',initials:'SL',rep:8700,answers:27,gold:3,silver:17,bronze:56},
+    {name:currentUser.name,initials:currentUser.initials,rep:currentUser.rep,answers:questions.filter(q=>q.answers.some(a=>a.realAuthor===currentUser.name)).length,gold:0,silver:0,bronze:0},
+  ].sort((a,b)=>b.rep-a.rep);
+  document.getElementById('main').innerHTML=`
+    <div class="breadcrumb"><span onclick="renderHome()">Home</span><span class="sep">›</span>Leaderboard</div>
+    <div class="page-header"><div class="page-title">🏆 Leaderboard</div></div>
+    <div class="rank-card">
+      ${users.map((u,i)=>`
+        <div class="rank-row ${u.name===currentUser.name?'me':''}">
+          <div class="rank-pos" style="color:${i===0?'#F59E0B':i===1?'#9CA3AF':i===2?'#B45309':'var(--light)'}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+          <div class="a-avatar" style="background:${avatarColor(u.name)};width:36px;height:36px;font-size:13px">${u.initials}</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:600">${u.name}${u.name===currentUser.name?' <span style="background:var(--indigo);color:#fff;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:700">You</span>':''}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">${u.answers} answers · <span style="color:#F59E0B">● ${u.gold}</span> <span style="color:#9CA3AF">● ${u.silver}</span> <span style="color:#B45309">● ${u.bronze}</span></div>
+          </div>
+          <div style="font-size:16px;font-weight:700;color:var(--amber)">⭐ ${u.rep.toLocaleString()}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+/* ══ RANKING ══ */
+function showRanking(){
+  document.getElementById('main').innerHTML=`
+    <div class="breadcrumb"><span onclick="renderHome()">Home</span><span class="sep">›</span>Rankings</div>
+    <div class="page-header"><div class="page-title">📊 Community Rankings</div></div>
+    <div class="rank-card">
+      <div class="rank-header">
+        <div class="rank-tab active" onclick="switchRankTab(this,'rep')">⭐ Reputation</div>
+        <div class="rank-tab" onclick="switchRankTab(this,'questions')">❓ Questions</div>
+        <div class="rank-tab" onclick="switchRankTab(this,'answers')">💬 Answers</div>
+        <div class="rank-tab" onclick="switchRankTab(this,'votes')">👍 Votes</div>
+      </div>
+      <div id="rank-body">${renderRankBody('rep')}</div>
+    </div>`;
+}
+function switchRankTab(el,type){
+  document.querySelectorAll('.rank-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('rank-body').innerHTML=renderRankBody(type);
+}
+function renderRankBody(type){
+  const accounts=getAccounts();
+  let users=Object.entries(accounts).map(([email,acc])=>({
+    name:acc.name,email,rep:acc.rep||0,
+    questions:questions.filter(q=>q.realAuthor===acc.name).length,
+    answers:questions.reduce((s,q)=>s+q.answers.filter(a=>a.realAuthor===acc.name).length,0),
+    votes:questions.reduce((s,q)=>s+q.answers.filter(a=>a.realAuthor===acc.name).reduce((v,a)=>v+a.votes,0),0),
+  }));
+  if(type==='rep')users.sort((a,b)=>b.rep-a.rep);
+  else if(type==='questions')users.sort((a,b)=>b.questions-a.questions);
+  else if(type==='answers')users.sort((a,b)=>b.answers-a.answers);
+  else users.sort((a,b)=>b.votes-a.votes);
+  if(!users.length)users=[{name:currentUser.name,email:currentUser.email,rep:currentUser.rep,questions:0,answers:0,votes:0}];
+  const medals=['🥇','🥈','🥉'];
+  return users.slice(0,20).map((u,i)=>`
+    <div class="rank-row ${u.email===currentUser.email?'me':''}">
+      <div class="rank-pos" style="color:${i===0?'#F59E0B':i===1?'#9CA3AF':i===2?'#B45309':'var(--light)'}">${i<3?medals[i]:i+1}</div>
+      <div class="a-avatar" style="background:${avatarColor(u.name)};width:36px;height:36px;font-size:13px">${u.name.slice(0,2).toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:600">${u.name}${u.email===currentUser.email?' <span style="background:var(--indigo);color:#fff;font-size:10px;padding:1px 7px;border-radius:10px">You</span>':''}${isAdmin(u.email)?` <span style="background:var(--admin);color:#fff;font-size:10px;padding:1px 7px;border-radius:10px">${isSuperAdmin(u.email)?'⭐':'🛡'}</span>`:''}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${u.questions} questions · ${u.answers} answers · ${u.votes} votes</div>
+      </div>
+      <div style="font-size:15px;font-weight:700;color:var(--amber)">⭐ ${u.rep.toLocaleString()}</div>
+    </div>`).join('');
+}
+
+/* ══ PROFILE ══ */
+function showProfile(){
+  document.getElementById('profile-dd').classList.remove('open');
+  const myQs=questions.filter(q=>q.realAuthor===currentUser.name);
+  const myAs=questions.filter(q=>q.answers.some(a=>a.realAuthor===currentUser.name));
+  const locStatus=currentUser.locVerified?`<span class="loc-badge">✅ Philippines verified</span>`
+    :(currentUser.location?`<span class="loc-badge pending">⏳ Location pending</span>`:`<span class="loc-badge unverified">📍 Not verified</span>`);
+  document.getElementById('main').innerHTML=`
+    <div class="breadcrumb"><span onclick="renderHome()">Home</span><span class="sep">›</span>Profile</div>
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:14px;padding:2rem;margin-bottom:1rem;box-shadow:var(--shadow)">
+      <div style="display:flex;gap:20px;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap">
+        <div class="a-avatar" style="width:72px;height:72px;font-size:24px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,${avatarColor(currentUser.name)},${avatarColor(currentUser.name+'x')})">${currentUser.initials}</div>
+        <div>
+          <div style="font-size:22px;font-weight:700;letter-spacing:-.3px">${currentUser.name}${isAdmin(currentUser.email)?` <span style="background:var(--admin);color:#fff;font-size:12px;padding:2px 10px;border-radius:10px">${isSuperAdmin(currentUser.email)?'⭐ Super Admin':'🛡 Admin'}</span>`:''}</div>
+          <div style="font-size:14px;color:var(--muted);margin-top:2px">${currentUser.email}</div>
+          <div style="font-size:13px;color:var(--amber);font-weight:600;margin-top:5px">⭐ ${currentUser.rep} reputation · Member since ${currentUser.joinDate}</div>
+          <div style="margin-top:6px;display:flex;align-items:center;gap:8px">${locStatus} <button onclick="document.getElementById('loc-modal').classList.add('open')" style="font-size:12px;padding:3px 10px;background:var(--indigo);color:#fff;border:none;border-radius:6px;cursor:pointer">📍 ${currentUser.locVerified?'Re-verify':'Verify'} Location</button></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div class="stat-card"><div class="s-num">${myQs.length}</div><div class="s-lbl">Questions asked</div></div>
+        <div class="stat-card"><div class="s-num">${myAs.length}</div><div class="s-lbl">Questions answered</div></div>
+        <div class="stat-card"><div class="s-num">${bookmarks.size}</div><div class="s-lbl">Bookmarks</div></div>
+      </div>
+    </div>
+    ${myQs.length?`<h3 style="font-size:15px;font-weight:700;margin-bottom:10px">My Questions</h3>${renderQList(myQs)}`:'<p style="color:var(--muted);font-size:14px">You haven\'t asked any questions yet. <a onclick="openAskModal()" style="color:var(--indigo);cursor:pointer;font-weight:600">Ask your first question →</a></p>'}`;
+}
+
+/* ══ LOCATION VERIFY ══ */
+function verifyLocation(){
+  if(!navigator.geolocation){
+    document.getElementById('loc-result').innerHTML='<p style="color:var(--red);font-size:13px">Geolocation is not supported by your browser.</p>';return;
+  }
+  document.getElementById('loc-result').innerHTML='<p style="color:var(--muted);font-size:13px">📍 Getting your location…</p>';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const lat=pos.coords.latitude,lon=pos.coords.longitude;
+    // Philippines bounds: lat 4.5–21.2, lon 116.9–126.6
+    const inPH=(lat>=4.5&&lat<=21.2&&lon>=116.9&&lon<=126.6);
+    const accounts=getAccounts();
+    if(accounts[currentUser.email]){
+      accounts[currentUser.email].location={lat,lon};
+      accounts[currentUser.email].locVerified=inPH;
+      saveAccounts(accounts);
+      currentUser.location={lat,lon};
+      currentUser.locVerified=inPH;
+    }
+    document.getElementById('loc-result').innerHTML=inPH
+      ?`<div style="padding:12px;background:var(--green-l);border-radius:8px;color:var(--green);font-size:13px;font-weight:600">✅ Location verified! You're in the Philippines (${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E)</div>`
+      :`<div style="padding:12px;background:var(--amber-l);border-radius:8px;color:var(--amber);font-size:13px;font-weight:600">⚠ Location detected (${lat.toFixed(2)}°, ${lon.toFixed(2)}°) — appears to be outside the Philippines. If you believe this is an error, contact an admin.</div>`;
+    if(inPH)showToast('Location verified! 🇵🇭','✅');
+  },err=>{
+    document.getElementById('loc-result').innerHTML=`<p style="color:var(--red);font-size:13px">Location access denied. Please allow location in your browser settings.</p>`;
+  });
+}
+
+/* ══ ADMIN PANEL ══ */
+function showAdminPanel(){
+  if(!isAdmin(currentUser.email)){showToast('Admin access only.','❌');return;}
+  document.getElementById('profile-dd').classList.remove('open');
+  const accounts=getAccounts();
+  const banned=getBanned();
+  const admins=getAdmins();
+  const cats=getCats().filter(c=>c.name!=='All');
+  document.getElementById('main').innerHTML=`
+    <div class="breadcrumb"><span onclick="renderHome()">Home</span><span class="sep">›</span>Admin Panel</div>
+    <div class="admin-panel">
+      <h3>🛡 Admin Control Panel ${isSuperAdmin(currentUser.email)?'<span style="background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;font-size:12px;padding:2px 10px;border-radius:8px">⭐ Super Admin</span>':''}</h3>
+      <div style="font-size:13px;opacity:.8">Manage users, categories, questions, and community settings.</div>
+    </div>
+
+    <!-- Users section -->
+    <div class="admin-section">
+      <h4>👥 Registered Users (${Object.keys(accounts).length})</h4>
+      ${Object.entries(accounts).map(([email,acc])=>`
+        <div class="admin-row">
+          <div class="a-avatar" style="background:${avatarColor(acc.name||'?')};width:36px;height:36px;font-size:13px;flex-shrink:0">${(acc.name||'?').slice(0,2).toUpperCase()}</div>
+          <div class="a-info">
+            <div class="a-nm">${acc.name||'Unknown'} ${isSuperAdmin(email)?'<span class="superadmin-badge">⭐ Super Admin</span>':admins.includes(email)?'<span class="admin-tag-badge">🛡 Admin</span>':''} ${banned.includes(email)?'<span class="banned-badge">🚫 Banned</span>':''}</div>
+            <div class="a-email">${email} · ⭐ ${acc.rep||0} rep · ${acc.locVerified?'<span class="loc-badge">🇵🇭 PH verified</span>':'<span class="loc-badge unverified">📍 Unverified</span>'}</div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${!isSuperAdmin(email)&&!admins.includes(email)&&isSuperAdmin(currentUser.email)?`<button class="btn-sm btn-sm-purple" onclick="promoteAdmin('${email}')">🛡 Make Admin</button>`:''}
+            ${admins.includes(email)&&(isSuperAdmin(currentUser.email))?`<button class="btn-sm btn-sm-amber" onclick="demoteAdmin('${email}')">↓ Remove Admin</button>`:''}
+            ${!isSuperAdmin(email)&&email!==currentUser.email?(!banned.includes(email)?`<button class="btn-sm btn-sm-red" onclick="banUser('${email}')">🚫 Ban</button>`:`<button class="btn-sm btn-sm-green" onclick="unbanUser('${email}')">✅ Unban</button>`):''}
+          </div>
+        </div>`).join('')||'<p style="color:var(--muted);font-size:13px">No registered users yet.</p>'}
+    </div>
+
+    <!-- Questions section -->
+    <div class="admin-section">
+      <h4>❓ Questions Management (${questions.length})</h4>
+      ${questions.map(q=>`
+        <div class="admin-row">
+          <div class="a-info" style="flex:1">
+            <div class="a-nm">${q.pinned?'📌 ':''}${q.title}</div>
+            <div class="a-email">By ${q.anon?`Anonymous (real: ${q.realAuthor})`:(q.realAuthor||q.author)} · ${q.answers.length} answers · ${q.cat}</div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn-sm btn-sm-amber" onclick="togglePinQuestion(${q.id})">${q.pinned?'📌 Unpin':'📌 Pin'}</button>
+            <button class="btn-sm btn-sm-red" onclick="adminDeleteQuestion(${q.id})">🗑 Delete</button>
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <!-- Categories section -->
+    <div class="admin-section">
+      <h4>🏷 Categories (${cats.length}) <button onclick="document.getElementById('cat-modal').classList.add('open')" style="margin-left:10px;padding:4px 12px;background:var(--indigo);color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">➕ Add</button></h4>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${cats.map(c=>`
+          <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--bg);border:1px solid var(--border);border-radius:20px;font-size:13px">
+            ${c.icon||''} ${c.name}
+            ${!['Programming','Technology','Science','Mathematics','Business','Design','Gaming','Other'].includes(c.name)?`<button onclick="removeCategory('${c.name}')" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:14px;padding:0 2px">✕</button>`:''}
+          </div>`).join('')}
+      </div>
+    </div>
+
+    ${isSuperAdmin(currentUser.email)?`
+    <!-- Add Admin section -->
+    <div class="admin-section">
+      <h4>🛡 Add Admin by Email</h4>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="new-admin-email" placeholder="user@example.com" style="flex:1;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;background:var(--bg);color:var(--text)"/>
+        <button onclick="addAdminByEmail()" style="padding:9px 16px;background:var(--admin);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Add Admin</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px">Admin accounts can pin answers, delete questions, and ban users but cannot remove super admins.</p>
+    </div>`:''}`;
+}
+
+function promoteAdmin(email){
+  if(!isSuperAdmin(currentUser.email)){showToast('Only super admins can promote.','❌');return;}
+  const admins=getAdmins();
+  if(!admins.includes(email)){admins.push(email);saveAdmins(admins);}
+  showToast('User promoted to admin!','🛡');showAdminPanel();
+}
+function demoteAdmin(email){
+  if(!isSuperAdmin(currentUser.email)){showToast('Only super admins can demote.','❌');return;}
+  if(isSuperAdmin(email)){showToast('Cannot demote a super admin.','❌');return;}
+  const admins=getAdmins().filter(e=>e!==email);saveAdmins(admins);
+  showToast('Admin role removed.','✅');showAdminPanel();
+}
+function addAdminByEmail(){
+  const email=document.getElementById('new-admin-email').value.trim().toLowerCase();
+  if(!email){showToast('Enter an email.','❌');return;}
+  if(isSuperAdmin(email)){showToast('This is already a super admin.','❌');return;}
+  const admins=getAdmins();
+  if(admins.includes(email)){showToast('Already an admin.','❌');return;}
+  admins.push(email);saveAdmins(admins);
+  showToast(`${email} is now an admin!`,'🛡');showAdminPanel();
+}
+function banUser(email){
+  if(isSuperAdmin(email)){showToast('Cannot ban a super admin.','❌');return;}
+  if(!confirm(`Ban ${email}? They will not be able to log in.`))return;
+  const banned=getBanned();if(!banned.includes(email)){banned.push(email);saveBanned(banned);}
+  showToast('User banned.','🚫');showAdminPanel();
+}
+function unbanUser(email){
+  saveBanned(getBanned().filter(e=>e!==email));showToast('User unbanned.','✅');showAdminPanel();
+}
+function togglePinQuestion(id){
+  const q=questions.find(x=>x.id===id);if(!q)return;
+  q.pinned=!q.pinned;showToast(q.pinned?'Question pinned 📌':'Question unpinned','📌');showAdminPanel();
+}
+function adminDeleteQuestion(id){
+  if(!confirm('Delete this question and all its answers?'))return;
+  questions=questions.filter(q=>q.id!==id);showToast('Question deleted.','🗑');showAdminPanel();
+}
+function addCategory(){
+  const name=document.getElementById('new-cat-name').value.trim();
+  const icon=document.getElementById('new-cat-icon').value.trim()||'📂';
+  if(!name){showToast('Enter a category name.','❌');return;}
+  const cats=getCats();
+  if(cats.find(c=>c.name.toLowerCase()===name.toLowerCase())){showToast('Category already exists.','❌');return;}
+  cats.push({name,icon});saveCats(cats);
+  closeCatModal();buildCatList();showToast(`Category "${name}" added!`,'✅');showAdminPanel();
+}
+function removeCategory(name){
+  if(!confirm(`Remove "${name}" category?`))return;
+  const cats=getCats().filter(c=>c.name!==name);saveCats(cats);buildCatList();showToast('Category removed.','🗑');showAdminPanel();
+}
+function closeCatModal(){document.getElementById('cat-modal').classList.remove('open');document.getElementById('new-cat-name').value='';document.getElementById('new-cat-icon').value='';}
+
+/* ══ QUESTION DETAIL ══ */
+function openQuestion(id){
+  const q=questions.find(x=>x.id===id);if(!q)return;
+  currentQ=q;q.views++;
+  let sorted=[...q.answers].sort((a,b)=>b.votes-a.votes);
+  // pinned answers to top
+  sorted.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
+  const related=questions.filter(x=>x.id!==id&&x.tags.some(t=>q.tags.includes(t))).slice(0,3);
+  const displayAuthor=q.anon&&!isAdmin(currentUser.email)?'Anonymous':q.author;
+  const adminQBtns=isAdmin(currentUser.email)?`
+    <button class="q-act-btn admin-btn" onclick="togglePinQuestion(${id});openQuestion(${id})">${q.pinned?'📌 Unpin':'📌 Pin'}</button>
+    <button class="q-act-btn admin-btn" style="color:var(--red);border-color:var(--red)" onclick="adminDeleteQuestion(${id})">🗑 Delete</button>`:'';
+  document.getElementById('main').innerHTML=`
+    <div class="breadcrumb"><span onclick="renderHome()">Home</span><span class="sep">›</span><span onclick="navTo('questions')">Questions</span><span class="sep">›</span>Question</div>
+    ${q.pinned?'<div style="margin-bottom:8px"><span class="pinned-badge">📌 Pinned by Admin</span></div>':''}
+    <div class="q-detail-card">
+      <div class="q-detail-title">${q.title}</div>
+      <div class="q-tags-row">${q.tags.map(t=>`<span class="tag">${t}</span>`).join('')}<span class="tag" style="background:var(--amber-l);color:var(--amber)">${q.cat}</span>${q.anon?'<span class="anon-badge">🕶 Anonymous</span>':''}</div>
+      <div class="q-body">${q.body}</div>
+      <div class="q-meta-bar">
+        <span>👤 ${displayAuthor}${q.anon&&isAdmin(currentUser.email)?` <span style="font-size:11px;color:var(--admin)">(real: ${q.realAuthor})</span>`:''}</span>
+        <span>📅 ${q.date}</span>
+        <span>👁 ${q.views.toLocaleString()} views</span>
+        <span>💬 ${q.answers.length} answers</span>
+      </div>
+      <div class="q-actions">
+        <button class="q-act-btn bookmark-btn ${bookmarks.has(q.id)?'saved':''}" onclick="toggleBookmark(${q.id},this)">${bookmarks.has(q.id)?'🔖 Saved':'🏷 Bookmark'}</button>
+        <button class="q-act-btn" onclick="shareQuestion()">🔗 Share</button>
+        ${adminQBtns}
+      </div>
+    </div>
+    <div class="answers-section-header">
+      <h2>${q.answers.length} Answers</h2>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn-ai" id="ai-btn" onclick="findBestAnswer()">🤖 AI: Find best answer</button>
+        <select class="sort-select" onchange="sortAnswers(${id},this.value)"><option value="rank">By rank</option><option value="newest">Newest</option><option value="helpful">Most helpful</option></select>
+      </div>
+    </div>
+    <div class="ai-box" id="ai-box"><div class="ai-box-inner">
+      <div class="ai-box-header"><div class="ai-badge">🤖 AI Analysis</div></div>
+      <div class="ai-box-body" id="ai-body"></div>
+    </div></div>
+    <div id="ans-list">${sorted.map((a,i)=>renderAnswerCard(a,i,q.id)).join('')}</div>
+    ${related.length?`<div class="related-panel"><h4>🔗 Related questions</h4>${related.map(r=>`<div class="related-item" onclick="openQuestion(${r.id})"><div class="r-title">${r.title}</div><div class="r-meta">${r.answers.length} answers · ${r.views} views</div></div>`).join('')}</div>`:''}
+    <div class="your-ans-box">
+      <h3>Your answer</h3>
+      <div class="anon-toggle">
+        <input type="checkbox" id="ans-anon" style="accent-color:var(--indigo)"/>
+        <label for="ans-anon" style="font-size:13px;cursor:pointer">Post anonymously <span style="color:var(--muted);font-weight:400">(admins can still see who you are)</span></label>
+      </div>
+      <div class="ans-toolbar">
+        <button class="toolbar-btn" onclick="wrapText('**','**')"><b>B</b></button>
+        <button class="toolbar-btn" onclick="wrapText('*','*')"><i>I</i></button>
+        <button class="toolbar-btn" onclick="wrapText('\`','\`')">Code</button>
+      </div>
+      <textarea id="ans-input" placeholder="Write a clear and detailed answer. Explain your reasoning." oninput="updateCharCount()"></textarea>
+      <div class="ans-footer">
+        <span class="char-count" id="char-count">0 / 5000</span>
+        <button class="btn-submit-ans" onclick="submitAnswer(${id})">Post Answer</button>
+      </div>
+    </div>`;
+}
+
+function renderAnswerCard(a,i,qid){
+  const medals=['🥇','🥈','🥉'];
+  const rankHtml=a.pinned?`<div class="rank-pip" style="background:var(--amber-l);color:var(--amber)">📌 Pinned</div>`:(i<3?`<div class="rank-pip rp${i+1}">${medals[i]} #${i+1}</div>`:`<div style="font-size:10px;color:var(--light);margin-top:4px">#${i+1}</div>`);
+  const voteKey=`${qid}-${a.id}`;
+  const myVote=votedAnswers[voteKey]||0;
+  const showAnon=a.anon&&!isAdmin(currentUser.email);
+  const displayAuthor=showAnon?'Anonymous':a.author;
+  const displayInitials=showAnon?'??':a.initials;
+  const adminReveal=a.anon&&isAdmin(currentUser.email)?`<span style="font-size:10px;color:var(--admin)">(real: ${a.realAuthor||a.author})</span>`:'';
+  const adminAnsBtn=isAdmin(currentUser.email)?`<button class="act-btn" style="color:var(--admin)" onclick="adminPinAnswer(${qid},${a.id})">${a.pinned?'📌 Unpin':'📌 Pin'}</button><button class="act-btn" style="color:var(--red)" onclick="adminDeleteAnswer(${qid},${a.id})">🗑 Del</button>`:'';
+  const commentHtml=a.comments&&a.comments.length?`
+    <div class="comments-section">
+      ${a.comments.map(c=>`<div class="comment-item"><div class="c-avatar">${c.author.slice(0,2).toUpperCase()}</div><div class="c-text"><span class="c-author">${c.author}</span>${c.text}</div></div>`).join('')}
+      <div class="add-comment-row"><input type="text" placeholder="Add a comment…" id="cmt-${a.id}" onkeydown="if(event.key==='Enter')addComment(${qid},${a.id})"/><button onclick="addComment(${qid},${a.id})">Post</button></div>
+    </div>`:`<div class="add-comment-row" style="margin-top:8px;display:none" id="cmt-row-${a.id}"><input type="text" placeholder="Add a comment…" id="cmt-${a.id}" onkeydown="if(event.key==='Enter')addComment(${qid},${a.id})"/><button onclick="addComment(${qid},${a.id})">Post</button></div>`;
+  return`
+    <div class="answer-card ${i===0&&!a.pinned?'top-ans':''} ${a.pinned?'pinned-ans':''}" id="acard-${a.id}">
+      <div class="vote-col">
+        <button class="vbtn vup ${myVote===1?'voted-up':''}" onclick="vote(${qid},${a.id},1)">▲</button>
+        <div class="vote-num">${a.votes}</div>
+        <button class="vbtn vdn ${myVote===-1?'voted-dn':''}" onclick="vote(${qid},${a.id},-1)">▼</button>
+        ${rankHtml}
+      </div>
+      <div class="ans-body">
+        <div class="ans-author-row">
+          <div class="author-block">
+            <div class="a-avatar" style="background:${showAnon?'var(--muted)':avatarColor(a.author)}">${displayInitials}</div>
+            <div>
+              <div class="a-name">${displayAuthor} ${adminReveal} ${a.anon?'<span class="anon-badge">🕶 Anon</span>':''}</div>
+              <div class="a-rep">${typeof a.rep==='number'?a.rep.toLocaleString():a.rep} rep</div>
+              <div class="badges-row"><span class="bge bg-g">● ${a.gold}</span><span class="bge bg-s">● ${a.silver}</span><span class="bge bg-b">● ${a.bronze}</span></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            ${i===0&&!a.pinned?'<span class="accepted-badge">✓ Top answer</span>':''}
+            ${a.pinned?'<span class="accepted-badge" style="color:var(--amber);background:var(--amber-l)">📌 Pinned</span>':''}
+            <span class="ans-date">${a.date}</span>
+          </div>
+        </div>
+        <div class="ans-text">${a.text}</div>
+        <div class="ans-actions">
+          <button class="act-btn" onclick="markHelpful(${qid},${a.id})">👍 Helpful (${a.helpful})</button>
+          <button class="act-btn" onclick="toggleCommentRow(${a.id})">💬 Comment</button>
+          <button class="act-btn" onclick="shareAnswer()">🔗 Share</button>
+          ${(a.realAuthor===currentUser.name||a.author===currentUser.name)?`<button class="act-btn" style="color:var(--red)" onclick="deleteAnswer(${qid},${a.id})">🗑 Delete</button>`:''}
+          ${adminAnsBtn}
+        </div>
+        ${commentHtml}
+      </div>
+    </div>`;
+}
+
+function adminPinAnswer(qid,aid){
+  const q=questions.find(x=>x.id===qid);if(!q)return;
+  const a=q.answers.find(x=>x.id===aid);if(!a)return;
+  a.pinned=!a.pinned;openQuestion(qid);showToast(a.pinned?'Answer pinned 📌':'Answer unpinned','📌');
+}
+function adminDeleteAnswer(qid,aid){
+  if(!isAdmin(currentUser.email)){showToast('Admin only.','❌');return;}
+  if(!confirm('Delete this answer?'))return;
+  const q=questions.find(x=>x.id===qid);
+  q.answers=q.answers.filter(a=>a.id!==aid);openQuestion(qid);showToast('Answer deleted.','🗑');
+}
+function toggleCommentRow(aid){const row=document.getElementById('cmt-row-'+aid);if(row){row.style.display=row.style.display==='none'?'flex':'none';if(row.style.display==='flex')row.querySelector('input').focus();}}
+function addComment(qid,aid){
+  const inp=document.getElementById('cmt-'+aid);if(!inp||!inp.value.trim())return;
+  const q=questions.find(x=>x.id===qid);const a=q.answers.find(x=>x.id===aid);
+  if(!a.comments)a.comments=[];
+  a.comments.push({author:currentUser.name,text:inp.value.trim()});
+  openQuestion(qid);showToast('Comment added','💬');
+}
+function deleteAnswer(qid,aid){
+  if(!confirm('Delete this answer?'))return;
+  const q=questions.find(x=>x.id===qid);q.answers=q.answers.filter(a=>a.id!==aid);
+  openQuestion(qid);showToast('Answer deleted','🗑');
+}
+function wrapText(pre,post){
+  const ta=document.getElementById('ans-input');if(!ta)return;
+  const s=ta.selectionStart,e=ta.selectionEnd,v=ta.value;
+  ta.value=v.slice(0,s)+pre+v.slice(s,e)+post+v.slice(e);
+  ta.focus();ta.setSelectionRange(s+pre.length,e+pre.length);
+}
+function updateCharCount(){const ta=document.getElementById('ans-input');const cc=document.getElementById('char-count');if(ta&&cc)cc.textContent=`${ta.value.length} / 5000`;}
+function shareQuestion(){navigator.clipboard&&navigator.clipboard.writeText(window.location.href);showToast('Link copied!','🔗');}
+function shareAnswer(){navigator.clipboard&&navigator.clipboard.writeText(window.location.href);showToast('Link copied!','🔗');}
+
+function sortAnswers(qid,by){
+  const q=questions.find(x=>x.id==qid);let sorted=[...q.answers];
+  if(by==='newest')sorted.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  else if(by==='helpful')sorted.sort((a,b)=>b.helpful-a.helpful);
+  else sorted.sort((a,b)=>b.votes-a.votes);
+  sorted.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
+  document.getElementById('ans-list').innerHTML=sorted.map((a,i)=>renderAnswerCard(a,i,qid)).join('');
+}
+function vote(qid,aid,delta){
+  const voteKey=`${qid}-${aid}`;const prev=votedAnswers[voteKey]||0;
+  const q=questions.find(x=>x.id===qid);const a=q.answers.find(x=>x.id===aid);
+  if(prev===delta){a.votes-=delta;votedAnswers[voteKey]=0;}else{a.votes+=delta-prev;votedAnswers[voteKey]=delta;}
+  currentUser.rep+=delta>0?5:-2;
+  document.getElementById('top-rep').textContent=`⭐ ${currentUser.rep} rep`;
+  document.getElementById('pd-rep').textContent=`⭐ ${currentUser.rep} reputation points`;
+  const sorted=[...q.answers].sort((a,b)=>b.votes-a.votes).sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
+  document.getElementById('ans-list').innerHTML=sorted.map((a,i)=>renderAnswerCard(a,i,qid)).join('');
+}
+function markHelpful(qid,aid){
+  const q=questions.find(x=>x.id===qid);const a=q.answers.find(x=>x.id===aid);
+  a.helpful++;currentUser.rep+=2;
+  document.getElementById('top-rep').textContent=`⭐ ${currentUser.rep} rep`;
+  showToast('Marked as helpful!','👍');
+  const sorted=[...q.answers].sort((a,b)=>b.votes-a.votes).sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));
+  document.getElementById('ans-list').innerHTML=sorted.map((a,i)=>renderAnswerCard(a,i,qid)).join('');
+}
+function submitAnswer(qid){
+  const txt=document.getElementById('ans-input').value.trim();
+  if(!txt){showToast('Please write an answer first.','❌');return;}
+  if(txt.length<20){showToast('Answer is too short. Please elaborate.','⚠');return;}
+  const anon=document.getElementById('ans-anon')?.checked||false;
+  const q=questions.find(x=>x.id===qid);
+  q.answers.push({id:q.answers.length+1,
+    author:anon?'Anonymous':currentUser.name,
+    realAuthor:currentUser.name,
+    initials:anon?'??':currentUser.initials,
+    anon,rep:currentUser.rep,gold:0,silver:0,bronze:0,
+    date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    text:txt,votes:0,helpful:0,pinned:false,comments:[]});
+  currentUser.rep+=10;saveRepToAccount();
+  notifications.unshift({id:Date.now(),icon:'💬',text:'Your answer was posted successfully.',time:'Just now',unread:true});
+  renderNotifications();openQuestion(qid);showToast('Answer posted! +10 reputation','✅');
+}
+
+/* ══ AI ══ */
+async function findBestAnswer(){
+  const q=currentQ;if(!q||!q.answers.length){showToast('No answers to analyse.','❌');return;}
+  const btn=document.getElementById('ai-btn');const box=document.getElementById('ai-box');const body=document.getElementById('ai-body');
+  btn.disabled=true;btn.innerHTML='<span class="spin">⟳</span> Analysing…';box.classList.remove('show');
+  const answersText=q.answers.map((a,i)=>`Answer ${i+1} (by ${a.author}, ${a.votes} votes, ${a.helpful} marked helpful):\n${a.text}`).join('\n\n---\n\n');
+  const prompt=`You are a Q&A expert evaluating community answers.\n\nQuestion: "${q.title}"\nContext: ${q.body}\n\nAnswers:\n${answersText}\n\nAnalyse all answers. Identify the best answer(s) and explain:\n1. Which answer is most accurate and complete, and why\n2. What makes it stand out\n3. Any important additions from other answers\n\nFormat: Start with "Best answer: [Author's name]" then explain in 4-6 clear sentences.`;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await resp.json();
+    const text=data.content?.map(c=>c.text||'').join('')||'Could not analyse answers.';
+    body.innerHTML=text.replace(/Best answer: ([^\n]+)/,'<div class="ai-winner">🏆 Best: $1</div>').replace(/\n/g,'<br/>');
+    box.classList.add('show');box.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(e){
+    body.innerHTML='<span style="color:var(--red)">Unable to connect to AI. Please try again.</span>';box.classList.add('show');
+  }
+  btn.disabled=false;btn.innerHTML='🤖 AI: Find best answer';
+}
+
+/* ══ ASK MODAL ══ */
+function openAskModal(){document.getElementById('ask-modal').classList.add('open');}
+function closeAskModal(){document.getElementById('ask-modal').classList.remove('open');}
+function updateTitleSuggest(){const t=document.getElementById('nq-title').value;const warn=document.getElementById('title-warn');warn.style.display=t.length>0&&t.length<20?'block':'none';}
+async function aiSuggestTags(){
+  const title=document.getElementById('nq-title').value.trim();const body=document.getElementById('nq-body').value.trim();
+  if(!title&&!body){showToast('Add a title or description first.','⚠');return;}
+  showToast('🤖 Generating tag suggestions…','⟳');
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:100,messages:[{role:'user',content:`Suggest 3-5 relevant tags for this Q&A question. Return only the tags as a comma-separated list, nothing else.\n\nTitle: ${title}\nBody: ${body}`}]})});
+    const data=await resp.json();const tags=data.content?.[0]?.text?.trim()||'';
+    if(tags)document.getElementById('nq-tags').value=tags;showToast('Tags suggested!','🤖');
+  }catch(e){showToast('Could not reach AI.','❌');}
+}
+function postQuestion(){
+  const title=document.getElementById('nq-title').value.trim();const body=document.getElementById('nq-body').value.trim();
+  const tags=document.getElementById('nq-tags').value.trim();const cat=document.getElementById('nq-cat').value;
+  const anon=document.getElementById('nq-anon').checked;
+  if(!title){showToast('Please add a question title.','❌');return;}
+  if(title.length<10){showToast('Title is too short — be more specific.','⚠');return;}
+  if(!body){showToast('Please add question details.','❌');return;}
+  const tagArr=tags?tags.split(',').map(t=>t.trim()).filter(Boolean):['General'];
+  const newQ={id:questions.length+1,title,body,tags:tagArr,cat,
+    author:anon?'Anonymous':currentUser.name,realAuthor:currentUser.name,anon,
+    date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    views:1,pinned:false,answers:[]};
+  questions.unshift(newQ);currentUser.rep+=5;saveRepToAccount();
+  document.getElementById('top-rep').textContent=`⭐ ${currentUser.rep} rep`;
+  closeAskModal();['nq-title','nq-body','nq-tags'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('nq-anon').checked=false;
+  notifications.unshift({id:Date.now(),icon:'❓',text:`Your question "${title.slice(0,40)}…" was posted.`,time:'Just now',unread:true});
+  renderNotifications();openQuestion(newQ.id);showToast('Question posted! +5 reputation','✅');
+}
+
+/* ══ TOAST ══ */
+let toastTimer;
+function showToast(msg,icon='✅'){
+  clearTimeout(toastTimer);const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;document.getElementById('toast-icon').textContent=icon;
+  t.classList.add('show');toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+/* ══ KEYBOARD ══ */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeAskModal();closeCatModal();document.getElementById('loc-modal').classList.remove('open');document.getElementById('notif-dd').classList.remove('open');document.getElementById('profile-dd').classList.remove('open');}
+  if((e.ctrlKey||e.metaKey)&&e.key==='k'){e.preventDefault();document.getElementById('search-input').focus();}
+});
+</script>
+</body>
+</html>
